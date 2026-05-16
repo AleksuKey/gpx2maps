@@ -3,19 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPX to Google Maps Converter | Fast & Free</title>
-    <meta name="description" content="Convert any GPX route into a Google Maps navigation link. Perfect for cars and motorcycles.">
     
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2003/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📍</text></svg>">
+
+    <title>GPX to Google Maps Converter | Global Route Planner</title>
+    <meta name="description" content="Convert GPX files to Google Maps routes for cars and motorcycles. Maintain your path with optimized waypoints. Free and safe.">
+    <meta name="keywords" content="GPX to Google Maps, GPX converter, road trip, motorcycle route, GPS converter">
+    <meta name="author" content="GPX2Maps Tool">
+    <meta name="robots" content="index, follow">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        :root { --primary-color: #209cee; }
-        body { background-color: #f5f7fa; min-height: 100vh; display: flex; flex-direction: column; }
-        .hero.is-info { background-color: var(--primary-color) !important; }
-        .main-card { border-top: 5px solid var(--primary-color); }
-        .ad-slot { background: #e1e4e8; border: 1px dashed #95a5a6; display: flex; align-items: center; justify-content: center; min-height: 90px; margin: 20px 0; color: #7f8c8d; font-size: 0.8rem; }
-        #result-section { display: none; margin-top: 1.5rem; }
+        :root {
+            --primary-color: #3273dc; 
+            --accent-color: #00d1b2;
+            --dark-bg: #1a1c22;
+        }
+        body { background-color: #f4f6f9; color: #363636; min-height: 100vh; display: flex; flex-direction: column; }
+        .hero.is-info { background: linear-gradient(135deg, #3273dc 0%, #275ba3 100%) !important; }
+        .main-card { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 6px solid var(--primary-color); }
+        .ad-slot { 
+            background: #eef1f4; border: 2px dashed #cbd5e0; 
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100px; margin: 25px 0; color: #718096; font-size: 0.85rem; border-radius: 8px;
+        }
+        #result-section { display: none; transform: translateY(10px); transition: all 0.4s ease; }
+        .footer { background: #ffffff; margin-top: auto; padding: 3rem 1.5rem; border-top: 1px solid #e2e8f0; }
+        .file-cta { transition: background 0.3s ease; }
+        .file-input:hover + .file-cta { background-color: #f1f1f1 !important; }
     </style>
 </head>
 <body>
@@ -23,70 +40,100 @@
     <section class="hero is-info is-bold">
         <div class="hero-body">
             <div class="container has-text-centered">
-                <h1 class="title is-1">GPX <i class="fas fa-long-arrow-alt-right"></i> Maps</h1>
-                <p class="subtitle">Convert any GPX into a Google Maps Route</p>
+                <h1 class="title is-1">
+                    <span class="icon-text">
+                        <span class="icon"><i class="fas fa-map-marked-alt"></i></span>
+                        <span>GPX to Maps</span>
+                    </span>
+                </h1>
+                <p class="subtitle is-4">Instantly convert GPS tracks into Google Maps navigation</p>
             </div>
         </div>
     </section>
 
-    <div class="container px-3">
-        <div class="ad-slot">ADVERTISEMENT - TOP BANNER</div>
+    <div class="container px-4">
+        <div class="ad-slot">
+            <i class="fas fa-ad mr-2"></i> ADVERTISING SPACE (Top Banner)
+        </div>
     </div>
 
     <section class="section">
         <div class="container">
             <div class="columns is-centered">
-                <div class="column is-half-desktop is-two-thirds-tablet">
+                <div class="column is-five-sixths-mobile is-two-thirds-tablet is-half-desktop">
                     
-                    <div class="box main-card">
-                        <h2 class="subtitle has-text-weight-bold">Step 1: Upload GPX File</h2>
+                    <div class="box main-card p-5">
+                        <h2 class="title is-4 has-text-centered mb-5">Upload Route File</h2>
                         
                         <div class="field">
                             <div class="file is-large is-boxed is-info has-name is-fullwidth">
                                 <label class="file-label">
                                     <input class="file-input" type="file" id="gpxInput" accept=".gpx">
                                     <span class="file-cta">
-                                        <span class="file-icon"><i class="fas fa-upload"></i></span>
-                                        <span class="file-label">Choose GPX file</span>
+                                        <span class="file-icon"><i class="fas fa-file-upload"></i></span>
+                                        <span class="file-label">Drag & Drop GPX</span>
                                     </span>
-                                    <span class="file-name" id="fileName">No file selected</span>
+                                    <span class="file-name" id="fileName">Select a file...</span>
                                 </label>
                             </div>
                         </div>
 
-                        <div class="field">
+                        <div class="field mt-4">
                             <label class="checkbox">
                                 <input type="checkbox" id="consent">
-                                I agree to the <a href="javascript:void(0)" id="openModal">Terms & Conditions</a>
+                                I agree to the <a href="javascript:void(0)" id="openModal" class="has-text-link">Terms & Conditions</a>
                             </label>
                         </div>
 
-                        <button class="button is-info is-fullwidth is-large" id="generateBtn" disabled>
-                            GENERATE GOOGLE MAPS ROUTE
-                        </button>
-
-                        <div id="result-section" class="notification is-success is-light">
-                            <p class="has-text-centered mb-4"><strong>Route ready!</strong></p>
-                            <button class="button is-success is-fullwidth" id="mapsLinkBtn">
-                                <span class="icon"><i class="fab fa-google"></i></span>
-                                <span>OPEN NAVIGATION</span>
+                        <div class="mt-5">
+                            <button class="button is-info is-fullwidth is-large" id="generateBtn" disabled>
+                                <strong><i class="fas fa-magic mr-2"></i>CONVERT TO MAPS</strong>
                             </button>
-                            <p class="is-size-7 mt-3 has-text-centered">Distributed waypoints used to maintain route shape.</p>
+                        </div>
+
+                        <div id="result-section" class="notification is-success is-light mt-5">
+                            <div class="has-text-centered">
+                                <p class="is-size-5 mb-3"><strong>Route Optimized!</strong></p>
+                                <button class="button is-success is-fullwidth is-medium" id="mapsLinkBtn">
+                                    <span class="icon"><i class="fab fa-google"></i></span>
+                                    <span>OPEN IN GOOGLE MAPS</span>
+                                </button>
+                                <p class="is-size-7 mt-3">23 key waypoints selected for maximum compatibility.</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="ad-slot">ADVERTISEMENT - BOTTOM CONTENT</div>
+                    <div class="ad-slot">
+                        <i class="fas fa-ad mr-2"></i> ADVERTISING SPACE (Native Content)
+                    </div>
 
                 </div>
             </div>
         </div>
     </section>
 
+    <footer class="footer">
+        <div class="container content has-text-centered">
+            <p><strong>GPX to Maps</strong> tool for travelers and riders.</p>
+            <p class="is-size-7">Privacy first: No data is ever uploaded to our servers.</p>
+        </div>
+    </footer>
+
     <div class="modal" id="termsModal">
         <div class="modal-background"></div>
         <div class="modal-card">
-            <header class="modal-card-head"><p class="modal-card-title">Terms</p><button class="delete" id="closeModal"></button></header>
-            <section class="modal-card-body"><p>Local processing only. Use at your own risk.</p></section>
+            <header class="modal-card-head">
+                <p class="modal-card-title">Legal Information</p>
+                <button class="delete" aria-label="close" id="closeModal"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="content">
+                    <h5>Privacy Policy</h5>
+                    <p>All GPS data is processed on your device. We don't see your routes.</p>
+                    <h5>Responsibility</h5>
+                    <p>Routes are simplified for Google Maps. Always verify the path before starting your journey. Use at your own risk.</p>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -97,54 +144,58 @@
         const generateBtn = document.getElementById('generateBtn');
         const resultSection = document.getElementById('result-section');
         const mapsLinkBtn = document.getElementById('mapsLinkBtn');
+        const modal = document.getElementById('termsModal');
 
-        document.getElementById('openModal').onclick = () => document.getElementById('termsModal').classList.add('is-active');
-        document.getElementById('closeModal').onclick = () => document.getElementById('termsModal').classList.remove('is-active');
+        // Modal triggers
+        document.getElementById('openModal').onclick = () => modal.classList.add('is-active');
+        document.getElementById('closeModal').onclick = () => modal.classList.remove('is-active');
 
-        gpxInput.onchange = () => { if(gpxInput.files[0]) { fileName.textContent = gpxInput.files[0].name; check(); } };
-        consent.onchange = check;
-        function check() { generateBtn.disabled = !(gpxInput.files[0] && consent.checked); }
+        // Input validation
+        gpxInput.onchange = () => {
+            if(gpxInput.files.length > 0) {
+                fileName.textContent = gpxInput.files[0].name;
+                checkState();
+            }
+        };
+        consent.onchange = checkState;
+        function checkState() {
+            generateBtn.disabled = !(gpxInput.files.length > 0 && consent.checked);
+        }
 
+        // Processing Logic
         generateBtn.onclick = () => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
                 
-                // Extraer todos los puntos (rtept o trkpt)
-                let allPoints = Array.from(xmlDoc.querySelectorAll('rtept, trkpt')).map(pt => 
+                // Select all points regardless of GPX creator
+                let points = Array.from(xmlDoc.querySelectorAll('rtept, trkpt, wpt')).map(pt => 
                     `${pt.getAttribute('lat')},${pt.getAttribute('lon')}`
                 );
 
-                if (allPoints.length === 0) return alert("No GPS points found.");
+                if (points.length === 0) return alert("Could not find any GPS points in this file.");
 
-                // ALGORITMO CORREGIDO: Muestreo uniforme en toda la longitud del array
-                const LIMIT = 23; // Límite seguro de Google Maps
-                let selectedPoints = [];
+                // EQUIDISTANT SAMPLING ALGORITHM
+                const MAX_POINTS = 23;
+                let finalSet = [];
 
-                if (allPoints.length <= LIMIT) {
-                    selectedPoints = allPoints;
+                if (points.length <= MAX_POINTS) {
+                    finalSet = points;
                 } else {
-                    // Siempre incluimos el primero
-                    selectedPoints.push(allPoints[0]);
-                    
-                    // Calculamos el incremento para repartir los puntos equitativamente
-                    const step = (allPoints.length - 1) / (LIMIT - 1);
-                    
-                    for (let i = 1; i < LIMIT - 1; i++) {
-                        const index = Math.floor(i * step);
-                        selectedPoints.push(allPoints[index]);
+                    finalSet.push(points[0]);
+                    const step = (points.length - 1) / (MAX_POINTS - 1);
+                    for (let i = 1; i < MAX_POINTS - 1; i++) {
+                        finalSet.push(points[Math.round(i * step)]);
                     }
-                    
-                    // Siempre incluimos el último
-                    selectedPoints.push(allPoints[allPoints.length - 1]);
+                    finalSet.push(points[points.length - 1]);
                 }
 
-                // Generar URL con formato /dir/punto1/punto2/.../puntoN
-                // Este formato es el más robusto para Google Maps
-                const mapsUrl = "https://www.google.com/maps/dir/" + selectedPoints.join('/');
+                // URL Construction (Universal Format)
+                const mapsUrl = "https://www.google.com/maps/dir/" + finalSet.join('/');
                 
                 resultSection.style.display = 'block';
+                resultSection.scrollIntoView({ behavior: 'smooth' });
                 mapsLinkBtn.onclick = () => window.open(mapsUrl, '_blank');
             };
             reader.readAsText(gpxInput.files[0]);
