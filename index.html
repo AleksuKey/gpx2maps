@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPX to Google Maps Converter | Fast & Free</title>
+    <meta name="description" content="Convert any GPX route into a Google Maps navigation link. Perfect for cars and motorcycles.">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root { --primary-color: #209cee; }
+        body { background-color: #f5f7fa; min-height: 100vh; display: flex; flex-direction: column; }
+        .hero.is-info { background-color: var(--primary-color) !important; }
+        .main-card { border-top: 5px solid var(--primary-color); }
+        .ad-slot { background: #e1e4e8; border: 1px dashed #95a5a6; display: flex; align-items: center; justify-content: center; min-height: 90px; margin: 20px 0; color: #7f8c8d; font-size: 0.8rem; }
+        #result-section { display: none; margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+
+    <section class="hero is-info is-bold">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title is-1">GPX <i class="fas fa-long-arrow-alt-right"></i> Maps</h1>
+                <p class="subtitle">Convert any GPX into a Google Maps Route</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="container px-3">
+        <div class="ad-slot">ADVERTISEMENT - TOP BANNER</div>
+    </div>
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-half-desktop is-two-thirds-tablet">
+                    
+                    <div class="box main-card">
+                        <h2 class="subtitle has-text-weight-bold">Step 1: Upload GPX File</h2>
+                        
+                        <div class="field">
+                            <div class="file is-large is-boxed is-info has-name is-fullwidth">
+                                <label class="file-label">
+                                    <input class="file-input" type="file" id="gpxInput" accept=".gpx">
+                                    <span class="file-cta">
+                                        <span class="file-icon"><i class="fas fa-upload"></i></span>
+                                        <span class="file-label">Choose GPX file</span>
+                                    </span>
+                                    <span class="file-name" id="fileName">No file selected</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="checkbox">
+                                <input type="checkbox" id="consent">
+                                I agree to the <a href="javascript:void(0)" id="openModal">Terms & Conditions</a>
+                            </label>
+                        </div>
+
+                        <button class="button is-info is-fullwidth is-large" id="generateBtn" disabled>
+                            GENERATE GOOGLE MAPS ROUTE
+                        </button>
+
+                        <div id="result-section" class="notification is-success is-light">
+                            <p class="has-text-centered mb-4"><strong>Route ready!</strong></p>
+                            <button class="button is-success is-fullwidth" id="mapsLinkBtn">
+                                <span class="icon"><i class="fab fa-google"></i></span>
+                                <span>OPEN NAVIGATION</span>
+                            </button>
+                            <p class="is-size-7 mt-3 has-text-centered">Distributed waypoints used to maintain route shape.</p>
+                        </div>
+                    </div>
+
+                    <div class="ad-slot">ADVERTISEMENT - BOTTOM CONTENT</div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal" id="termsModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head"><p class="modal-card-title">Terms</p><button class="delete" id="closeModal"></button></header>
+            <section class="modal-card-body"><p>Local processing only. Use at your own risk.</p></section>
+        </div>
+    </div>
+
+    <script>
+        const gpxInput = document.getElementById('gpxInput');
+        const fileName = document.getElementById('fileName');
+        const consent = document.getElementById('consent');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultSection = document.getElementById('result-section');
+        const mapsLinkBtn = document.getElementById('mapsLinkBtn');
+
+        document.getElementById('openModal').onclick = () => document.getElementById('termsModal').classList.add('is-active');
+        document.getElementById('closeModal').onclick = () => document.getElementById('termsModal').classList.remove('is-active');
+
+        gpxInput.onchange = () => { if(gpxInput.files[0]) { fileName.textContent = gpxInput.files[0].name; check(); } };
+        consent.onchange = check;
+        function check() { generateBtn.disabled = !(gpxInput.files[0] && consent.checked); }
+
+        generateBtn.onclick = () => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+                
+                // Extraer todos los puntos (rtept o trkpt)
+                let allPoints = Array.from(xmlDoc.querySelectorAll('rtept, trkpt')).map(pt => 
+                    `${pt.getAttribute('lat')},${pt.getAttribute('lon')}`
+                );
+
+                if (allPoints.length === 0) return alert("No GPS points found.");
+
+                // ALGORITMO CORREGIDO: Muestreo uniforme en toda la longitud del array
+                const LIMIT = 23; // Límite seguro de Google Maps
+                let selectedPoints = [];
+
+                if (allPoints.length <= LIMIT) {
+                    selectedPoints = allPoints;
+                } else {
+                    // Siempre incluimos el primero
+                    selectedPoints.push(allPoints[0]);
+                    
+                    // Calculamos el incremento para repartir los puntos equitativamente
+                    const step = (allPoints.length - 1) / (LIMIT - 1);
+                    
+                    for (let i = 1; i < LIMIT - 1; i++) {
+                        const index = Math.floor(i * step);
+                        selectedPoints.push(allPoints[index]);
+                    }
+                    
+                    // Siempre incluimos el último
+                    selectedPoints.push(allPoints[allPoints.length - 1]);
+                }
+
+                // Generar URL con formato /dir/punto1/punto2/.../puntoN
+                // Este formato es el más robusto para Google Maps
+                const mapsUrl = "https://www.google.com/maps/dir/" + selectedPoints.join('/');
+                
+                resultSection.style.display = 'block';
+                mapsLinkBtn.onclick = () => window.open(mapsUrl, '_blank');
+            };
+            reader.readAsText(gpxInput.files[0]);
+        };
+    </script>
+</body>
+</html>
